@@ -91,6 +91,7 @@
 			    {%- if 'ticktext' in axis %}
 			    "ticktext": {{ axis.ticktext|jsonify }},
 			    {%- endif %}
+			    tickangle: 'auto',
 			    "title": {
 				"text": "{{ axis.label }}"
 			    }

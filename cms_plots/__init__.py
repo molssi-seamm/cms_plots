@@ -9,7 +9,8 @@ Plots for computational materials/molecular science
 
 # Main classes
 from .plotting import Figure  # noqa: F401
-from .electronic import band_structure_plot, create_figure, dos, dos_plot  # noqa: F401
+from .electronic import band_structure, band_structure_plot  # noqa: F401
+from .electronic import create_figure, dos, dos_plot  # noqa: F401
 
 # Handle versioneer
 from ._version import get_versions

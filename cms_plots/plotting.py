@@ -38,7 +38,7 @@ class Figure(Dictionary):
         self._template = template
         self._plots = Dictionary(ordered=True)
 
-        self._grid = {"nrows": 0, "ncolumns": 0, "plots": {}, "layout": {}}
+        self._grid = None
 
     @property
     def template(self):
@@ -127,7 +127,7 @@ class Figure(Dictionary):
                     0.02.
         """
 
-        grid = self._grid
+        grid = self._grid = {"nrows": 0, "ncolumns": 0, "plots": {}, "layout": {}}
         grid["padx"] = padx
         grid["pady"] = pady
         plots = grid["plots"] = []

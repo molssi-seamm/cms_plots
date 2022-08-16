@@ -16,22 +16,94 @@ from .plotting import Figure
 logger = logging.getLogger(__name__)
 
 
-def band_structure_plot(plot, BandStructure):
+def band_structure(
+    Band_Structure,
+    DOS=None,
+    layout="3-panels",
+    template="band_structure.html_template",
+):
+    """Prepare the graph for the bandstructure
+
+    Parameters
+    ----------
+    Band_Structure : pandas.DataFrame
+        The band structure data in a standard Pandas dataframe.
+    DOS : pandas.DataFrame
+        The DOS data in a standard Pandas dataframe.
+    layout : str
+        For spin polarized calculations, use 3 (3-panels) or 2 panels.
+    template : str
+        The template for the figure. Defaults to "line.html_template"
+
+    Returns
+    -------
+    plotting.Figure
+        A figure with the band structure plot.
+    """
+    figure = create_figure(
+        module_path=("cms_plots",),
+        template=template,
+        title="Band Structure",
+    )
+
+    # Create a graph of the DOS
+    plot = figure.add_plot("Band_Structure")
+    band_structure_plot(plot, Band_Structure)
+    figure.grid_plots("Band_Structure")
+
+    # Add the DOS plots if given
+    if DOS is None:
+        figure.grid_plots("Band_Structure")
+    else:
+        # Find the y axis
+        for y_axis in plot.axes:
+            if y_axis.direction == "y":
+                break
+
+        three_panels = layout == "3-panels" and any(
+            ("↑" in name for name in DOS.columns)
+        )
+        if three_panels:
+            plot = figure.add_plot("DOS-UP")
+            dos_plot(
+                plot,
+                DOS,
+                y_axis=y_axis,
+                orientation="vertical",
+                flipped="x",
+                spin="↑",
+            )
+
+            plot = figure.add_plot("DOS-DOWN")
+            dos_plot(plot, DOS, y_axis=y_axis, orientation="vertical", spin="↓")
+
+            figure.grid_plots("DOS-UP Band_Structure - - DOS-DOWN", padx=0)
+        else:
+            plot = figure.add_plot("DOS")
+            dos_plot(plot, DOS, y_axis=y_axis, orientation="vertical")
+
+            figure.grid_plots("Band_Structure - - DOS", padx=0)
+
+    return figure
+
+
+def band_structure_plot(plot, Band_Structure):
     """Prepare the graph for the band structure.
 
     Parameters
     ----------
     plot : plotting.Plot
         Plot object for the graphs
-    BandStructure : pandas.DataFrame
+    Band_Structure : pandas.DataFrame
         Standard dataframe containing the band structure
     """
     logger.info("Preparing the band structure")
 
-    xs = list(BandStructure.index)
+    xs = list(Band_Structure.index)
 
     # Have the full arrays, but want only the labeled points
-    labels = BandStructure["labels"].loc[BandStructure["labels"] != ""]
+    labels = Band_Structure["labels"].fillna("")
+    labels = labels.loc[labels != ""]
 
     x_axis = plot.add_axis(
         "x",
@@ -43,7 +115,7 @@ def band_structure_plot(plot, BandStructure):
     y_axis = plot.add_axis("y", label="Energy (eV)", anchor=x_axis)
     x_axis.anchor = y_axis
 
-    for label, values in BandStructure.items():
+    for label, values in Band_Structure.items():
         if label in ("labels", "points"):
             continue
 
@@ -68,7 +140,9 @@ def band_structure_plot(plot, BandStructure):
         )
 
 
-def create_figure(self, title="", template="line.graph_template", module_path=None):
+def create_figure(
+    jinja_env=None, title="", template="line.graph_template", module_path=None
+):
     """Create a new figure.
 
     Parameters
@@ -83,18 +157,16 @@ def create_figure(self, title="", template="line.graph_template", module_path=No
     plotting.Figure
     """
 
-    if self._jinja_env is None:
+    if jinja_env is None:
         # The order of the loaders is important! They are searched
         # in order, so the first has precedence. This searches the
         # current package first, then looks in the main SEAMM
         # templates.
         if module_path is None:
-            self.logger.info("Reading graph templates from 'seamm'")
+            logger.info("Reading graph templates from 'seamm'")
             loaders = [jinja2.PackageLoader("cms_plots")]
         else:
-            self.logger.info(
-                "Reading graph templates from the following modules, in order"
-            )
+            logger.info("Reading graph templates from the following modules, in order")
             loaders = []
             for module in module_path:
                 paths = []
@@ -104,27 +176,36 @@ def create_figure(self, title="", template="line.graph_template", module_path=No
                         break
 
                 if len(paths) == 0:
-                    self.logger.info(f"\t{module} -- found no templates directory")
+                    logger.info(f"\t{module} -- found no templates directory")
                 else:
                     path = paths[0].locate().parent
-                    self.logger.info(f"\t{ module} --> {path}")
+                    logger.info(f"\t{ module} --> {path}")
                     loaders.append(jinja2.FileSystemLoader(path))
 
-        self._jinja_env = jinja2.Environment(loader=jinja2.ChoiceLoader(loaders))
+        jinja_env = jinja2.Environment(loader=jinja2.ChoiceLoader(loaders))
 
-    figure = Figure(jinja_env=self._jinja_env, template=template, title=title)
+    figure = Figure(jinja_env=jinja_env, template=template, title=title)
     return figure
 
 
-def dos(DOS):
+def dos(DOS, template="line.html_template"):
     """Prepare the graph for the density of states.
 
     Parameters
     ----------
+    DOS : pandas.DataFrame
+        The DOS data in a standard Pandas dataframe.
+    template : str
+        The template for the figure. Defaults to "line.html_template"
+
+    Returns
+    -------
+    plotting.Figure
+        A figure with the DOS plot.
     """
     figure = create_figure(
         module_path=("cms_plots",),
-        template="line.graph_template",
+        template=template,
         title="Density of States (DOS)",
     )
 
