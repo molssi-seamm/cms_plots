@@ -133,7 +133,7 @@ def band_structure_plot(plot, Band_Structure):
             x=xs,
             xlabel="",
             xunits="",
-            y=list(values),
+            y=[f"{y:.3f}" for y in values],
             ylabel="Energy",
             yunits="eV",
             color=color,
@@ -287,7 +287,7 @@ def dos_plot(
     y_axis.anchor = x_axis
 
     # The common x coordinates (energy)
-    xs = list(DOS.index)
+    xs = [f"{x:.3f}" for x in DOS.index]
 
     last_element = None
     count = -1
@@ -328,7 +328,7 @@ def dos_plot(
                 x=xs,
                 xlabel="E",
                 xunits="eV",
-                y=list(DOS[column]),
+                y=[f"{y:.3f}" for y in DOS[column]],
                 ylabel=column,
                 yunits="",
                 color=color,
@@ -339,7 +339,7 @@ def dos_plot(
                 x_axis=x_axis,
                 y_axis=y_axis,
                 name=column,
-                x=list(DOS[column]),
+                x=[f"{y:.3f}" for y in DOS[column]],
                 xlabel=column,
                 xunits="",
                 y=xs,
