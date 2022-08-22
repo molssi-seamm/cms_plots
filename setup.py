@@ -64,8 +64,7 @@ setup(
     # prevent the .egg from being made
     zip_safe=True,
 
-    keywords=["SEAMM", "plug-in", "flowchart", "quantum", "simulation",
-              "atomistic", "DFTB+", "DFTBplus", "tight-binding", "DFT"],
+    keywords=["electronic structure", "density of states", "DOS", "band structure"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Science/Research",
