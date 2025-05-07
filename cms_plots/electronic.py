@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Methods for creating plots for electronic structure calculations
-"""
+"""Methods for creating plots for electronic structure calculations"""
 
 import logging
 
@@ -97,7 +96,7 @@ def band_structure_plot(plot, Band_Structure):
     Band_Structure : pandas.DataFrame
         Standard dataframe containing the band structure
     """
-    logger.info("Preparing the band structure")
+    logger.debug("Preparing the band structure")
 
     xs = list(Band_Structure.index)
 
@@ -163,10 +162,10 @@ def create_figure(
         # current package first, then looks in the main SEAMM
         # templates.
         if module_path is None:
-            logger.info("Reading graph templates from 'seamm'")
+            logger.debug("Reading graph templates from 'seamm'")
             loaders = [jinja2.PackageLoader("cms_plots")]
         else:
-            logger.info("Reading graph templates from the following modules, in order")
+            logger.debug("Reading graph templates from the following modules, in order")
             loaders = []
             for module in module_path:
                 paths = []
@@ -176,10 +175,10 @@ def create_figure(
                         break
 
                 if len(paths) == 0:
-                    logger.info(f"\t{module} -- found no templates directory")
+                    logger.debug(f"\t{module} -- found no templates directory")
                 else:
                     path = paths[0].locate().parent
-                    logger.info(f"\t{ module} --> {path}")
+                    logger.debug(f"\t{ module} --> {path}")
                     loaders.append(jinja2.FileSystemLoader(path))
 
         jinja_env = jinja2.Environment(loader=jinja2.ChoiceLoader(loaders))
