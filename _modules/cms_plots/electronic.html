@@ -1,0 +1,466 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cms_plots.electronic &mdash; DFTB+ Step 2025.5.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=b25a682c"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            DFTB+ Step
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">User Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer/index.html">Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Credits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../history.html">History</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://molssi-seamm.github.io">Main SEAMM documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DFTB+ Step</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cms_plots.electronic</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cms_plots.electronic</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="sd">&quot;&quot;&quot;Methods for creating plots for electronic structure calculations&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">implib</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">importlib_metadata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">implib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jinja2</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="band_structure">
+<a class="viewcode-back" href="../../developer/cms_plots.html#cms_plots.electronic.band_structure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">band_structure</span><span class="p">(</span>
+    <span class="n">Band_Structure</span><span class="p">,</span>
+    <span class="n">DOS</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;3-panels&quot;</span><span class="p">,</span>
+    <span class="n">template</span><span class="o">=</span><span class="s2">&quot;band_structure.html_template&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare the graph for the bandstructure</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Band_Structure : pandas.DataFrame</span>
+<span class="sd">        The band structure data in a standard Pandas dataframe.</span>
+<span class="sd">    DOS : pandas.DataFrame</span>
+<span class="sd">        The DOS data in a standard Pandas dataframe.</span>
+<span class="sd">    layout : str</span>
+<span class="sd">        For spin polarized calculations, use 3 (3-panels) or 2 panels.</span>
+<span class="sd">    template : str</span>
+<span class="sd">        The template for the figure. Defaults to &quot;line.html_template&quot;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plotting.Figure</span>
+<span class="sd">        A figure with the band structure plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">figure</span> <span class="o">=</span> <span class="n">create_figure</span><span class="p">(</span>
+        <span class="n">module_path</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;cms_plots&quot;</span><span class="p">,),</span>
+        <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Band Structure&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Create a graph of the DOS</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">figure</span><span class="o">.</span><span class="n">add_plot</span><span class="p">(</span><span class="s2">&quot;Band_Structure&quot;</span><span class="p">)</span>
+    <span class="n">band_structure_plot</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">Band_Structure</span><span class="p">)</span>
+    <span class="n">figure</span><span class="o">.</span><span class="n">grid_plots</span><span class="p">(</span><span class="s2">&quot;Band_Structure&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Add the DOS plots if given</span>
+    <span class="k">if</span> <span class="n">DOS</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">figure</span><span class="o">.</span><span class="n">grid_plots</span><span class="p">(</span><span class="s2">&quot;Band_Structure&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Find the y axis</span>
+        <span class="k">for</span> <span class="n">y_axis</span> <span class="ow">in</span> <span class="n">plot</span><span class="o">.</span><span class="n">axes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">y_axis</span><span class="o">.</span><span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="n">three_panels</span> <span class="o">=</span> <span class="n">layout</span> <span class="o">==</span> <span class="s2">&quot;3-panels&quot;</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;↑&quot;</span> <span class="ow">in</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">DOS</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">three_panels</span><span class="p">:</span>
+            <span class="n">plot</span> <span class="o">=</span> <span class="n">figure</span><span class="o">.</span><span class="n">add_plot</span><span class="p">(</span><span class="s2">&quot;DOS-UP&quot;</span><span class="p">)</span>
+            <span class="n">dos_plot</span><span class="p">(</span>
+                <span class="n">plot</span><span class="p">,</span>
+                <span class="n">DOS</span><span class="p">,</span>
+                <span class="n">y_axis</span><span class="o">=</span><span class="n">y_axis</span><span class="p">,</span>
+                <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;vertical&quot;</span><span class="p">,</span>
+                <span class="n">flipped</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                <span class="n">spin</span><span class="o">=</span><span class="s2">&quot;↑&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">plot</span> <span class="o">=</span> <span class="n">figure</span><span class="o">.</span><span class="n">add_plot</span><span class="p">(</span><span class="s2">&quot;DOS-DOWN&quot;</span><span class="p">)</span>
+            <span class="n">dos_plot</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">DOS</span><span class="p">,</span> <span class="n">y_axis</span><span class="o">=</span><span class="n">y_axis</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;vertical&quot;</span><span class="p">,</span> <span class="n">spin</span><span class="o">=</span><span class="s2">&quot;↓&quot;</span><span class="p">)</span>
+
+            <span class="n">figure</span><span class="o">.</span><span class="n">grid_plots</span><span class="p">(</span><span class="s2">&quot;DOS-UP Band_Structure - - DOS-DOWN&quot;</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plot</span> <span class="o">=</span> <span class="n">figure</span><span class="o">.</span><span class="n">add_plot</span><span class="p">(</span><span class="s2">&quot;DOS&quot;</span><span class="p">)</span>
+            <span class="n">dos_plot</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">DOS</span><span class="p">,</span> <span class="n">y_axis</span><span class="o">=</span><span class="n">y_axis</span><span class="p">,</span> <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;vertical&quot;</span><span class="p">)</span>
+
+            <span class="n">figure</span><span class="o">.</span><span class="n">grid_plots</span><span class="p">(</span><span class="s2">&quot;Band_Structure - - DOS&quot;</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">figure</span></div>
+
+
+
+<div class="viewcode-block" id="band_structure_plot">
+<a class="viewcode-back" href="../../developer/cms_plots.html#cms_plots.electronic.band_structure_plot">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">band_structure_plot</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">Band_Structure</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare the graph for the band structure.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    plot : plotting.Plot</span>
+<span class="sd">        Plot object for the graphs</span>
+<span class="sd">    Band_Structure : pandas.DataFrame</span>
+<span class="sd">        Standard dataframe containing the band structure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Preparing the band structure&quot;</span><span class="p">)</span>
+
+    <span class="n">xs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Band_Structure</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="c1"># Have the full arrays, but want only the labeled points</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">Band_Structure</span><span class="p">[</span><span class="s2">&quot;labels&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">labels</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+
+    <span class="n">x_axis</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">add_axis</span><span class="p">(</span>
+        <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">tickmode</span><span class="o">=</span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
+        <span class="n">tickvals</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">labels</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+        <span class="n">ticktext</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">y_axis</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">add_axis</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Energy (eV)&quot;</span><span class="p">,</span> <span class="n">anchor</span><span class="o">=</span><span class="n">x_axis</span><span class="p">)</span>
+    <span class="n">x_axis</span><span class="o">.</span><span class="n">anchor</span> <span class="o">=</span> <span class="n">y_axis</span>
+
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">Band_Structure</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;labels&quot;</span><span class="p">,</span> <span class="s2">&quot;points&quot;</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="s2">&quot;↑&quot;</span> <span class="ow">in</span> <span class="n">label</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+        <span class="k">elif</span> <span class="s2">&quot;↓&quot;</span> <span class="ow">in</span> <span class="n">label</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;blue&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span>
+
+        <span class="n">plot</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+            <span class="n">x_axis</span><span class="o">=</span><span class="n">x_axis</span><span class="p">,</span>
+            <span class="n">y_axis</span><span class="o">=</span><span class="n">y_axis</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">label</span><span class="p">,</span>
+            <span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">xunits</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">y</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">values</span><span class="p">],</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Energy&quot;</span><span class="p">,</span>
+            <span class="n">yunits</span><span class="o">=</span><span class="s2">&quot;eV&quot;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_figure">
+<a class="viewcode-back" href="../../developer/cms_plots.html#cms_plots.electronic.create_figure">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_figure</span><span class="p">(</span>
+    <span class="n">jinja_env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="s2">&quot;line.graph_template&quot;</span><span class="p">,</span> <span class="n">module_path</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new figure.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    title : str, optional</span>
+<span class="sd">    template : str, optional</span>
+<span class="sd">        The Jinja template for the desired graph. Defaults to</span>
+<span class="sd">        &#39;line.graph_template&#39;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plotting.Figure</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">jinja_env</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># The order of the loaders is important! They are searched</span>
+        <span class="c1"># in order, so the first has precedence. This searches the</span>
+        <span class="c1"># current package first, then looks in the main SEAMM</span>
+        <span class="c1"># templates.</span>
+        <span class="k">if</span> <span class="n">module_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Reading graph templates from &#39;seamm&#39;&quot;</span><span class="p">)</span>
+            <span class="n">loaders</span> <span class="o">=</span> <span class="p">[</span><span class="n">jinja2</span><span class="o">.</span><span class="n">PackageLoader</span><span class="p">(</span><span class="s2">&quot;cms_plots&quot;</span><span class="p">)]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Reading graph templates from the following modules, in order&quot;</span><span class="p">)</span>
+            <span class="n">loaders</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">module_path</span><span class="p">:</span>
+                <span class="n">paths</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">implib</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;templates&quot;</span><span class="p">:</span>
+                        <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+                        <span class="k">break</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2"> -- found no templates directory&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">locate</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2"> --&gt; </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">loaders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">jinja2</span><span class="o">.</span><span class="n">FileSystemLoader</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+
+        <span class="n">jinja_env</span> <span class="o">=</span> <span class="n">jinja2</span><span class="o">.</span><span class="n">Environment</span><span class="p">(</span><span class="n">loader</span><span class="o">=</span><span class="n">jinja2</span><span class="o">.</span><span class="n">ChoiceLoader</span><span class="p">(</span><span class="n">loaders</span><span class="p">))</span>
+
+    <span class="n">figure</span> <span class="o">=</span> <span class="n">Figure</span><span class="p">(</span><span class="n">jinja_env</span><span class="o">=</span><span class="n">jinja_env</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">figure</span></div>
+
+
+
+<div class="viewcode-block" id="dos">
+<a class="viewcode-back" href="../../developer/cms_plots.html#cms_plots.electronic.dos">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dos</span><span class="p">(</span><span class="n">DOS</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="s2">&quot;line.html_template&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare the graph for the density of states.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    DOS : pandas.DataFrame</span>
+<span class="sd">        The DOS data in a standard Pandas dataframe.</span>
+<span class="sd">    template : str</span>
+<span class="sd">        The template for the figure. Defaults to &quot;line.html_template&quot;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plotting.Figure</span>
+<span class="sd">        A figure with the DOS plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">figure</span> <span class="o">=</span> <span class="n">create_figure</span><span class="p">(</span>
+        <span class="n">module_path</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;cms_plots&quot;</span><span class="p">,),</span>
+        <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Density of States (DOS)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Create a graph of the DOS</span>
+    <span class="n">plot</span> <span class="o">=</span> <span class="n">figure</span><span class="o">.</span><span class="n">add_plot</span><span class="p">(</span><span class="s2">&quot;DOS&quot;</span><span class="p">)</span>
+    <span class="n">dos_plot</span><span class="p">(</span><span class="n">plot</span><span class="p">,</span> <span class="n">DOS</span><span class="p">)</span>
+    <span class="n">figure</span><span class="o">.</span><span class="n">grid_plots</span><span class="p">(</span><span class="s2">&quot;DOS&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">figure</span></div>
+
+
+
+<div class="viewcode-block" id="dos_plot">
+<a class="viewcode-back" href="../../developer/cms_plots.html#cms_plots.electronic.dos_plot">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dos_plot</span><span class="p">(</span>
+    <span class="n">plot</span><span class="p">,</span>
+    <span class="n">DOS</span><span class="p">,</span>
+    <span class="n">colors</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;purple&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;green&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cyan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;gold&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;deeppink&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;turquoise&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;magenta&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">dashes</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;dot&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="s2">&quot;dash&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="s2">&quot;dashdot&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;f&quot;</span><span class="p">:</span> <span class="s2">&quot;longdashdot&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">y_axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span>
+    <span class="n">flipped</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="n">spin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare the plot of the density of states (DOS).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    plot : plotting.Plot</span>
+<span class="sd">        The Plot object for the graph.</span>
+<span class="sd">    DOS : pandas.DataFrame</span>
+<span class="sd">        The DOS data in a standard form as a Pandas DataFrame.</span>
+<span class="sd">    colors : (str,)</span>
+<span class="sd">        The colors to use for atom-projected DOS.</span>
+<span class="sd">    dashes : (str,)</span>
+<span class="sd">        The dashes used to denote the shells in projected DOS</span>
+<span class="sd">    y_axis : plotting.Axis = None</span>
+<span class="sd">        The y axis for shared plots, in e.g. the combo band structure - DOS plot.</span>
+<span class="sd">    orientation : str = &quot;horizontal&quot;</span>
+<span class="sd">        The orientation of the energy axis, horizontal or vertical.</span>
+<span class="sd">    flipped : str</span>
+<span class="sd">        If this string contains &quot;x&quot; the energy in a veritcal graph increases to left.</span>
+<span class="sd">    spin : str = None</span>
+<span class="sd">        If not None, only DOS with labels including this string are plotted. Intended</span>
+<span class="sd">        to be e.g. &quot;↑&quot; or &quot;↓&quot; to pick out the spin-up or -down bands.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="s2">&quot;horizontal&quot;</span><span class="p">:</span>
+        <span class="n">x_axis</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">add_axis</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Energy (eV)&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">y_axis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y_axis</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">add_axis</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;DOS&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;x&quot;</span> <span class="ow">in</span> <span class="n">flipped</span><span class="p">:</span>
+            <span class="n">x_axis</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">add_axis</span><span class="p">(</span>
+                <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;DOS&quot;</span><span class="p">,</span>
+                <span class="n">ticklabelposition</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+                <span class="n">autorange</span><span class="o">=</span><span class="s2">&quot;reversed&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_axis</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">add_axis</span><span class="p">(</span>
+                <span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;DOS&quot;</span><span class="p">,</span>
+                <span class="n">ticklabelposition</span><span class="o">=</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">y_axis</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y_axis</span> <span class="o">=</span> <span class="n">plot</span><span class="o">.</span><span class="n">add_axis</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Energy (eV)&quot;</span><span class="p">)</span>
+
+    <span class="n">x_axis</span><span class="o">.</span><span class="n">anchor</span> <span class="o">=</span> <span class="n">y_axis</span>
+    <span class="n">y_axis</span><span class="o">.</span><span class="n">anchor</span> <span class="o">=</span> <span class="n">x_axis</span>
+
+    <span class="c1"># The common x coordinates (energy)</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">DOS</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="n">last_element</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">DOS</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">spin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spin</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">column</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="s2">&quot;Total&quot;</span> <span class="ow">in</span> <span class="n">column</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;↑&quot;</span> <span class="ow">in</span> <span class="n">column</span><span class="p">:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+                <span class="n">dash</span> <span class="o">=</span> <span class="s2">&quot;solid&quot;</span>
+            <span class="k">elif</span> <span class="s2">&quot;↓&quot;</span> <span class="ow">in</span> <span class="n">column</span><span class="p">:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;blue&quot;</span>
+                <span class="n">dash</span> <span class="o">=</span> <span class="s2">&quot;solid&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span>
+                <span class="n">dash</span> <span class="o">=</span> <span class="s2">&quot;solid&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">column</span><span class="p">:</span>
+                <span class="n">element</span><span class="p">,</span> <span class="n">shell</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                <span class="n">shell</span> <span class="o">=</span> <span class="n">shell</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">dash</span> <span class="o">=</span> <span class="n">dashes</span><span class="p">[</span><span class="n">shell</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">element</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">dash</span> <span class="o">=</span> <span class="s2">&quot;solid&quot;</span>
+            <span class="k">if</span> <span class="n">element</span> <span class="o">!=</span> <span class="n">last_element</span><span class="p">:</span>
+                <span class="n">last_element</span> <span class="o">=</span> <span class="n">element</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">colors</span><span class="p">):</span>
+                    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">count</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">orientation</span> <span class="o">==</span> <span class="s2">&quot;horizontal&quot;</span><span class="p">:</span>
+            <span class="n">plot</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                <span class="n">x_axis</span><span class="o">=</span><span class="n">x_axis</span><span class="p">,</span>
+                <span class="n">y_axis</span><span class="o">=</span><span class="n">y_axis</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">column</span><span class="p">,</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span>
+                <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;E&quot;</span><span class="p">,</span>
+                <span class="n">xunits</span><span class="o">=</span><span class="s2">&quot;eV&quot;</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">y</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">DOS</span><span class="p">[</span><span class="n">column</span><span class="p">]],</span>
+                <span class="n">ylabel</span><span class="o">=</span><span class="n">column</span><span class="p">,</span>
+                <span class="n">yunits</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                <span class="n">dash</span><span class="o">=</span><span class="n">dash</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plot</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                <span class="n">x_axis</span><span class="o">=</span><span class="n">x_axis</span><span class="p">,</span>
+                <span class="n">y_axis</span><span class="o">=</span><span class="n">y_axis</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">column</span><span class="p">,</span>
+                <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">y</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">DOS</span><span class="p">[</span><span class="n">column</span><span class="p">]],</span>
+                <span class="n">xlabel</span><span class="o">=</span><span class="n">column</span><span class="p">,</span>
+                <span class="n">xunits</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">xs</span><span class="p">,</span>
+                <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;E&quot;</span><span class="p">,</span>
+                <span class="n">yunits</span><span class="o">=</span><span class="s2">&quot;eV&quot;</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                <span class="n">dash</span><span class="o">=</span><span class="n">dash</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
