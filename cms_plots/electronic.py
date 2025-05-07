@@ -178,7 +178,7 @@ def create_figure(
                     logger.debug(f"\t{module} -- found no templates directory")
                 else:
                     path = paths[0].locate().parent
-                    logger.debug(f"\t{ module} --> {path}")
+                    logger.debug(f"\t{module} --> {path}")
                     loaders.append(jinja2.FileSystemLoader(path))
 
         jinja_env = jinja2.Environment(loader=jinja2.ChoiceLoader(loaders))
