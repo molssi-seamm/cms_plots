@@ -1,0 +1,7 @@
+cms_plots
+=========
+
+.. toctree::
+   :maxdepth: 4
+
+   cms_plots

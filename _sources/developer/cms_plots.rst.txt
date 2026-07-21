@@ -1,0 +1,37 @@
+cms\_plots package
+==================
+
+Submodules
+----------
+
+cms\_plots.dictionary module
+----------------------------
+
+.. automodule:: cms_plots.dictionary
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+cms\_plots.electronic module
+----------------------------
+
+.. automodule:: cms_plots.electronic
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+cms\_plots.plotting module
+--------------------------
+
+.. automodule:: cms_plots.plotting
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: cms_plots
+   :members:
+   :show-inheritance:
+   :undoc-members:
