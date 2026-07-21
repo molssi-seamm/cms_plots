@@ -51,11 +51,11 @@ clean-test: ## remove test and coverage artifacts
 	find . -name '.pytype' -exec rm -fr {} +
 
 lint: ## check style with black and flake8
-	black --check --diff $(MODULE) tests
+	black --extend-exclude '_version.py' --check --diff $(MODULE) tests
 	flake8 $(MODULE) tests
 
 format: ## reformat with with yapf and isort
-	black $(MODULE) tests
+	black --extend-exclude '_version.py' $(MODULE) tests
 
 typing: ## check typing
 	pytype $(MODULE)
@@ -104,3 +104,12 @@ install: uninstall ## install the package to the active Python's site-packages
 
 uninstall: clean ## uninstall the package
 	pip uninstall --yes $(MODULE)
+
+.PHONY: update
+update: ## post-release: sync main and dev, reinstall, run checks, push dev
+	git checkout main
+	git pull
+	git checkout dev
+	git merge --ff-only main
+	$(MAKE) lint install test
+	git push
